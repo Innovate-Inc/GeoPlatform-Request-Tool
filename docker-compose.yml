@@ -1,0 +1,19 @@
+version: '3.7'
+
+services:
+
+  db:
+    image: postgres:11
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+
+  api:
+    image: docker.itgis.innovateteam.com/request_api
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      DEBUG: ${DEBUG}

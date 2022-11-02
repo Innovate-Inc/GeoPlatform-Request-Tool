@@ -82,8 +82,18 @@ WSGI_APPLICATION = 'AGOLAccountRequestor.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 
-DATABASES = local_settings.DATABASES
-
+DATABASES = {
+    'default': {
+        'ENGINE': 'mssql',
+        'NAME': 'AGOLAccountRequestor',
+        'USER': os.environ.get('DB_USER', ''),
+        'PASSWORD': os.environ.get('DB_HOST', ''),
+        'HOST': os.environ.get('DB_HOST', ''),
+        'OPTIONS': {
+            'driver': 'ODBC Driver 17 for SQL Server'
+        }
+    }
+}
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators
 

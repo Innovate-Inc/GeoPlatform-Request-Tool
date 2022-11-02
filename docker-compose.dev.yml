@@ -1,0 +1,17 @@
+version: '3.7'
+
+services:
+
+  db:
+    volumes:
+      - ../pgdata:/var/lib/postgresql/data
+  api:
+    volumes:
+      - .:/code
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+
+volumes:
+  woodrat_db:
