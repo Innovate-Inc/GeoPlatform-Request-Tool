@@ -24,11 +24,16 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DEBUG')
+DEBUG = os.environ.get('DEBUG', '') == 'True'
 
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS')
+ALLOWED_HOSTS = [os.environ.get('ALLOWED_HOST', '')]
 
 # Application definition
+
+if os.environ.get('INSTALLED_APPS'):
+    APPS = os.environ.get('INSTALLED_APPS').split(',')
+else:
+    APPS = []
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -44,12 +49,17 @@ INSTALLED_APPS = [
     'social_django',
     # 'rest_framework_social_oauth2',
     'accounts'
-] + os.environ.get('INSTALLED_APPS')
+] + APPS
+
+if os.environ.get('CORS_MIDDLEWARE'):
+    CORS_MIDDLEWARE = os.environ.get('CORS_MIDDLEWARE').split(',')
+else:
+    CORS_MIDDLEWARE = []
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-] + os.environ.get('CORS_MIDDLEWARE') + [
+] + CORS_MIDDLEWARE + [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -82,12 +92,25 @@ WSGI_APPLICATION = 'AGOLAccountRequestor.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'mssql',
+#         'NAME': 'AGOLAccountRequestor',
+#         'USER': '',
+#         'PASSWORD': '',
+#         'HOST': 'localhost\sql2019',
+#         'OPTIONS': {
+#             'driver': 'ODBC Driver 13 for SQL Server'
+#         }
+#     }
+# }
+
 DATABASES = {
     'default': {
         'ENGINE': 'mssql',
         'NAME': 'AGOLAccountRequestor',
         'USER': os.environ.get('DB_USER', ''),
-        'PASSWORD': os.environ.get('DB_HOST', ''),
+        'PASSWORD': os.environ.get('DB_PASSWORD', ''),
         'HOST': os.environ.get('DB_HOST', ''),
         'OPTIONS': {
             'driver': 'ODBC Driver 17 for SQL Server'
@@ -152,22 +175,35 @@ OAUTH2_PROVIDER_ID_TOKEN_MODEL = "oauth2_provider.IDToken"
 SOCIAL_AUTH_AGOL_DOMAIN = os.environ.get('SOCIAL_AUTH_AGOL_DOMAIN')
 SOCIAL_AUTH_AGOL_KEY = os.environ.get('SOCIAL_AUTH_AGOL_KEY')
 SOCIAL_AUTH_AGOL_SECRET = os.environ.get('SOCIAL_AUTH_AGOL_SECRET')
-SOCIAL_AUTH_REDIRECT_IS_HTTPS = os.environ.get('SOCIAL_AUTH_REDIRECT_IS_HTTPS', True)
-SOCIAL_AUTH_PIPELINE = os.environ.get('SOCIAL_AUTH_PIPELINE')
-SOCIAL_AUTH_AGOL_PREAPPROVED_DOMAINS = os.environ.get('SOCIAL_AUTH_AGOL_PREAPPROVED_DOMAINS', [])
+SOCIAL_AUTH_REDIRECT_IS_HTTPS = os.environ.get('SOCIAL_AUTH_REDIRECT_IS_HTTPS', 'True') == 'True'
+
+if os.environ.get('SOCIAL_AUTH_PIPELINE'):
+    SOCIAL_AUTH_PIPELINE = os.environ.get('SOCIAL_AUTH_PIPELINE').split(',')
+else:
+    SOCIAL_AUTH_PIPELINE = []
+
+if os.environ.get('SOCIAL_AUTH_AGOL_PREAPPROVED_DOMAINS'):
+    SOCIAL_AUTH_AGOL_PREAPPROVED_DOMAINS = os.environ.get('SOCIAL_AUTH_AGOL_PREAPPROVED_DOMAINS').split(',')
+else:
+    SOCIAL_AUTH_AGOL_PREAPPROVED_DOMAINS = []
+
 SOCIAL_AUTH_AGOL_UNKNOWN_REQUESTER_GROUP_ID = os.environ.get('SOCIAL_AUTH_AGOL_UNKNOWN_REQUESTER_GROUP_ID', 0)
-SOCIAL_AUTH_ALLOWED_REDIRECT_HOSTS = os.environ.get('SOCIAL_AUTH_ALLOWED_REDIRECT_HOSTS', [])
+
+if os.environ.get('SOCIAL_AUTH_ALLOWED_REDIRECT_HOSTS'):
+    SOCIAL_AUTH_ALLOWED_REDIRECT_HOSTS = os.environ.get('SOCIAL_AUTH_ALLOWED_REDIRECT_HOSTS').split(',')
+else:
+    SOCIAL_AUTH_ALLOWED_REDIRECT_HOSTS = []
 
 REST_FRAMEWORK = os.environ.get('REST_FRAMEWORK')
 
 DRF_RECAPTCHA_SECRET_KEY = os.environ.get('DRF_RECAPTCHA_SECRET_KEY')
 
 CORS_ORIGIN_WHITELIST = os.environ.get('CORS_ORIGIN_WHITELIST')
-CORS_ALLOW_CREDENTIALS = os.environ.get('CORS_ALLOW_CREDENTIALS', False)
+CORS_ALLOW_CREDENTIALS = os.environ.get('CORS_ALLOW_CREDENTIALS', 'False') == 'True'
 
 EMAIL_BACKEND = 'sendgrid_backend.SendgridBackend'
 SENDGRID_API_KEY = os.environ.get('SENDGRID_API_KEY')
-SENDGRID_SANDBOX_MODE_IN_DEBUG = os.environ.get('SENDGRID_SANDBOX_MODE_IN_DEBUG')
+SENDGRID_SANDBOX_MODE_IN_DEBUG = os.environ.get('SENDGRID_SANDBOX_MODE_IN_DEBUG', '') == 'True'
 
 LOGGING = DEFAULT_LOGGING
 
@@ -201,7 +237,11 @@ URL_PREFIX = os.environ.get('URL_PREFIX', '')
 LOGIN_REDIRECT_URL = f'/{URL_PREFIX}api/admin/'
 LOGIN_URL = f'/{URL_PREFIX}api/admin/'
 
-INTERNAL_IPS = os.environ.get('INTERNAL_IPS', [])
+if os.environ.get('INTERNAL_IPS'):
+    INTERNAL_IPS = os.environ.get('INTERNAL_IPS').split(',')
+else:
+    INTERNAL_IPS = []
+
 HOST_ADDRESS = os.environ.get('HOST_ADDRESS', '')
 
 COORDINATOR_ADMIN_GROUP_ID = os.environ.get('COORDINATOR_ADMIN_GROUP_ID', 0)
