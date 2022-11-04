@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
 import os
-from . import local_settings
+# from . import local_settings
 from django.utils.log import DEFAULT_LOGGING
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -21,14 +21,19 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = local_settings.SECRET_KEY
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = local_settings.DEBUG
+DEBUG = os.environ.get('DEBUG', '') == 'True'
 
-ALLOWED_HOSTS = local_settings.ALLOWED_HOSTS
+ALLOWED_HOSTS = [os.environ.get('ALLOWED_HOST', '')]
 
 # Application definition
+
+if os.environ.get('INSTALLED_APPS'):
+    APPS = os.environ.get('INSTALLED_APPS').split(',')
+else:
+    APPS = []
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -44,12 +49,17 @@ INSTALLED_APPS = [
     'social_django',
     # 'rest_framework_social_oauth2',
     'accounts'
-] + local_settings.INSTALLED_APPS
+] + APPS
+
+if os.environ.get('CORS_MIDDLEWARE'):
+    CORS_MIDDLEWARE = os.environ.get('CORS_MIDDLEWARE').split(',')
+else:
+    CORS_MIDDLEWARE = []
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-] + local_settings.CORS_MIDDLEWARE + [
+] + CORS_MIDDLEWARE + [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -82,12 +92,25 @@ WSGI_APPLICATION = 'AGOLAccountRequestor.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'mssql',
+#         'NAME': 'AGOLAccountRequestor',
+#         'USER': '',
+#         'PASSWORD': '',
+#         'HOST': 'localhost\sql2019',
+#         'OPTIONS': {
+#             'driver': 'ODBC Driver 13 for SQL Server'
+#         }
+#     }
+# }
+
 DATABASES = {
     'default': {
         'ENGINE': 'mssql',
         'NAME': 'AGOLAccountRequestor',
         'USER': os.environ.get('DB_USER', ''),
-        'PASSWORD': os.environ.get('DB_HOST', ''),
+        'PASSWORD': os.environ.get('DB_PASSWORD', ''),
         'HOST': os.environ.get('DB_HOST', ''),
         'OPTIONS': {
             'driver': 'ODBC Driver 17 for SQL Server'
@@ -128,7 +151,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
-STATIC_URL = getattr(local_settings, 'STATIC_URL', '/request/static/')
+STATIC_URL = os.environ.get('STATIC_URL', '/request/static/')
 
 #STATIC_ROOT = 'static'
 STATICFILES_DIRS = (
@@ -149,25 +172,61 @@ OAUTH2_PROVIDER_APPLICATION_MODEL = 'oauth2_provider.Application'
 OAUTH2_PROVIDER_REFRESH_TOKEN_MODEL = 'oauth2_provider.RefreshToken'
 OAUTH2_PROVIDER_ID_TOKEN_MODEL = "oauth2_provider.IDToken"
 
-SOCIAL_AUTH_AGOL_DOMAIN = local_settings.SOCIAL_AUTH_AGOL_DOMAIN
-SOCIAL_AUTH_AGOL_KEY = local_settings.SOCIAL_AUTH_AGOL_KEY
-SOCIAL_AUTH_AGOL_SECRET = local_settings.SOCIAL_AUTH_AGOL_SECRET
-SOCIAL_AUTH_REDIRECT_IS_HTTPS = getattr(local_settings, 'SOCIAL_AUTH_REDIRECT_IS_HTTPS', True)
-SOCIAL_AUTH_PIPELINE = local_settings.SOCIAL_AUTH_PIPELINE
-SOCIAL_AUTH_AGOL_PREAPPROVED_DOMAINS = getattr(local_settings, 'SOCIAL_AUTH_AGOL_PREAPPROVED_DOMAINS', [])
-SOCIAL_AUTH_AGOL_UNKNOWN_REQUESTER_GROUP_ID = getattr(local_settings, 'SOCIAL_AUTH_AGOL_UNKNOWN_REQUESTER_GROUP_ID', 0)
-SOCIAL_AUTH_ALLOWED_REDIRECT_HOSTS = getattr(local_settings, 'SOCIAL_AUTH_ALLOWED_REDIRECT_HOSTS', [])
+SOCIAL_AUTH_AGOL_DOMAIN = os.environ.get('SOCIAL_AUTH_AGOL_DOMAIN')
+SOCIAL_AUTH_AGOL_KEY = os.environ.get('SOCIAL_AUTH_AGOL_KEY')
+SOCIAL_AUTH_AGOL_SECRET = os.environ.get('SOCIAL_AUTH_AGOL_SECRET')
+SOCIAL_AUTH_REDIRECT_IS_HTTPS = os.environ.get('SOCIAL_AUTH_REDIRECT_IS_HTTPS', 'True') == 'True'
 
-REST_FRAMEWORK = local_settings.REST_FRAMEWORK
+if os.environ.get('SOCIAL_AUTH_PIPELINE'):
+    SOCIAL_AUTH_PIPELINE = os.environ.get('SOCIAL_AUTH_PIPELINE').split(',')
+else:
+    SOCIAL_AUTH_PIPELINE = []
 
-DRF_RECAPTCHA_SECRET_KEY = local_settings.DRF_RECAPTCHA_SECRET_KEY
+if os.environ.get('SOCIAL_AUTH_AGOL_PREAPPROVED_DOMAINS'):
+    SOCIAL_AUTH_AGOL_PREAPPROVED_DOMAINS = os.environ.get('SOCIAL_AUTH_AGOL_PREAPPROVED_DOMAINS').split(',')
+else:
+    SOCIAL_AUTH_AGOL_PREAPPROVED_DOMAINS = []
 
-CORS_ORIGIN_WHITELIST = local_settings.CORS_ORIGIN_WHITELIST
-CORS_ALLOW_CREDENTIALS = getattr(local_settings, 'CORS_ALLOW_CREDENTIALS', False)
+SOCIAL_AUTH_AGOL_UNKNOWN_REQUESTER_GROUP_ID = int(os.environ.get('SOCIAL_AUTH_AGOL_UNKNOWN_REQUESTER_GROUP_ID', 0))
+
+if os.environ.get('SOCIAL_AUTH_ALLOWED_REDIRECT_HOSTS'):
+    SOCIAL_AUTH_ALLOWED_REDIRECT_HOSTS = os.environ.get('SOCIAL_AUTH_ALLOWED_REDIRECT_HOSTS').split(',')
+else:
+    SOCIAL_AUTH_ALLOWED_REDIRECT_HOSTS = []
+
+if os.environ.get('REST_DEFAULT_AUTHENTICATION_CLASSES'):
+    REST_DEFAULT_AUTHENTICATION_CLASSES = os.environ.get('REST_DEFAULT_AUTHENTICATION_CLASSES').split(',')
+else:
+    REST_DEFAULT_AUTHENTICATION_CLASSES = []
+
+if os.environ.get('REST_DEFAULT_PERMISSION_CLASSES'):
+    REST_DEFAULT_PERMISSION_CLASSES = os.environ.get('REST_DEFAULT_PERMISSION_CLASSES').split(',')
+else:
+    REST_DEFAULT_PERMISSION_CLASSES = []
+
+REST_DEFAULT_PAGINATION_CLASS = os.environ.get('REST_DEFAULT_PAGINATION_CLASS', '')
+REST_PAGE_SIZE = int(os.environ.get('REST_PAGE_SIZE', 25))
+if os.environ.get('REST_DEFAULT_FILTER_BACKENDS'):
+    REST_DEFAULT_FILTER_BACKENDS = os.environ.get('REST_DEFAULT_FILTER_BACKENDS').split(',')
+else:
+    REST_DEFAULT_FILTER_BACKENDS = []
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': REST_DEFAULT_AUTHENTICATION_CLASSES,
+    'DEFAULT_PERMISSION_CLASSES': REST_DEFAULT_PERMISSION_CLASSES,
+    'DEFAULT_PAGINATION_CLASS': REST_DEFAULT_PAGINATION_CLASS,
+    'PAGE_SIZE': REST_PAGE_SIZE,
+    'DEFAULT_FILTER_BACKENDS': REST_DEFAULT_FILTER_BACKENDS
+}
+
+DRF_RECAPTCHA_SECRET_KEY = os.environ.get('DRF_RECAPTCHA_SECRET_KEY')
+
+CORS_ORIGIN_WHITELIST = os.environ.get('CORS_ORIGIN_WHITELIST')
+CORS_ALLOW_CREDENTIALS = os.environ.get('CORS_ALLOW_CREDENTIALS', 'False') == 'True'
 
 EMAIL_BACKEND = 'sendgrid_backend.SendgridBackend'
-SENDGRID_API_KEY = local_settings.SENDGRID_API_KEY
-SENDGRID_SANDBOX_MODE_IN_DEBUG = local_settings.SENDGRID_SANDBOX_MODE_IN_DEBUG
+SENDGRID_API_KEY = os.environ.get('SENDGRID_API_KEY')
+SENDGRID_SANDBOX_MODE_IN_DEBUG = os.environ.get('SENDGRID_SANDBOX_MODE_IN_DEBUG', '') == 'True'
 
 LOGGING = DEFAULT_LOGGING
 
@@ -175,8 +234,8 @@ LOGGING['handlers']['slack'] = {
     'level': 'ERROR',
     'filters': ['require_debug_false'],
     'class': 'slack_logging.SlackExceptionHandler',
-    'bot_token': getattr(local_settings.SLACK_LOGGING, 'SLACK_BOT_TOKEN', ''),
-    'channel_id': getattr(local_settings.SLACK_LOGGING, 'SLACK_CHANNEL', '')
+    'bot_token': os.environ.get('SLACK_BOT_TOKEN', ''),
+    'channel_id': os.environ.get('SLACK_CHANNEL', '')
 }
 
 LOGGING['handlers']['file'] = {
@@ -196,14 +255,18 @@ LOGGING['loggers']['R9DMT'] = {
 }
 
 
-USE_X_FORWARDED_HOST = getattr(local_settings, 'USE_X_FORWARDED_HOST', False)
-URL_PREFIX = getattr(local_settings, 'URL_PREFIX', '')
+USE_X_FORWARDED_HOST = os.environ.get('USE_X_FORWARDED_HOST', False)
+URL_PREFIX = os.environ.get('URL_PREFIX', '')
 LOGIN_REDIRECT_URL = f'/{URL_PREFIX}api/admin/'
 LOGIN_URL = f'/{URL_PREFIX}api/admin/'
 
-INTERNAL_IPS = getattr(local_settings, 'INTERNAL_IPS', [])
-HOST_ADDRESS = getattr(local_settings, 'HOST_ADDRESS', '')
+if os.environ.get('INTERNAL_IPS'):
+    INTERNAL_IPS = os.environ.get('INTERNAL_IPS').split(',')
+else:
+    INTERNAL_IPS = []
 
-COORDINATOR_ADMIN_GROUP_ID = getattr(local_settings, 'COORDINATOR_ADMIN_GROUP_ID', 0)
+HOST_ADDRESS = os.environ.get('HOST_ADDRESS', '')
+
+COORDINATOR_ADMIN_GROUP_ID = int(os.environ.get('COORDINATOR_ADMIN_GROUP_ID', 0))
 
 CSRF_COOKIE_NAME = 'requestcsrftoken'
