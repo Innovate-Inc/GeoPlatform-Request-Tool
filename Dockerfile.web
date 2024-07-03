@@ -1,16 +1,19 @@
-FROM node:lts-alpine as node
+FROM node:lts as node
 
 WORKDIR /code
 COPY /ui/package.json /code/
+COPY /ui/package-lock.json /code/
 
-RUN npm install
+RUN NODE_OPTIONS="--max_old_space_size=8192"
+
+RUN npm ci
 
 COPY /ui /code/
 
-RUN npm run build -c=innovate
+RUN npm run build:innovate
 
 # Stage 0, based on Node.js, to build and compile Angular
 FROM nginx:alpine
 COPY ./template.nginx /etc/nginx/conf.d/template.nginx
 COPY --from=docker.itgis.innovateteam.com/request_api:latest /code/static /usr/share/nginx/html/static
-COPY --from=node /code/build/ /usr/share/nginx/html/ui
+COPY --from=node /code/dist/ui /usr/share/nginx/html/ui

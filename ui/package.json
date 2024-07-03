@@ -8,6 +8,7 @@
     "build:staging": "ng build --configuration staging --base-href=/apps/staging/request/ --source-map",
     "build:ngst-staging": "ng build --configuration ngst-staging",
     "build:ngst-prod": "ng build --configuration ngst-prod",
+    "build:innovate": "ng build --configuration innovate",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng run ui:cypress-run",
