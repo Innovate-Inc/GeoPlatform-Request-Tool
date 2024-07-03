@@ -7,7 +7,7 @@ RUN npm install
 
 COPY /ui /code/
 
-RUN npm run build
+RUN npm run build -c=innovate
 
 # Stage 0, based on Node.js, to build and compile Angular
 FROM nginx:alpine
