@@ -28,7 +28,7 @@ x-common-variables: &common-variables
   SLACK_CHANNEL: ${SLACK_CHANNEL}
   INTERNAL_IPS: ${INTERNAL_IPS}
   SOCIAL_AUTH_REDIRECT_IS_HTTPS: ${SOCIAL_AUTH_REDIRECT_IS_HTTPS}
-  USE_X_FORWARDED_HOST: ${USE_X_FORWARDED_HOST}
+
 services:
   request_api:
     image: docker.itgis.innovateteam.com/request_api

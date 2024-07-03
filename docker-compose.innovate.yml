@@ -24,7 +24,7 @@ services:
     expose:
       - "80"
     depends_on:
-      - api
+      - request_api
     image: docker.itgis.innovateteam.com/request_web
     networks:
       - default
