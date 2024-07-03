@@ -8,4 +8,5 @@ RUN pip install pip --upgrade
 RUN pip install --upgrade -r requirements.txt
 
 COPY . /code/
+RUN pip install gunicorn
 RUN python manage.py collectstatic --noinput
