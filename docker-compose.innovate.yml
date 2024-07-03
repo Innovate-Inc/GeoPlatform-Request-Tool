@@ -1,6 +1,6 @@
 
 services:
-  api:
+  request_api:
     command: /bin/sh -c "python manage.py migrate && gunicorn --bind 0.0.0.0:8000 AGOLAccountRequestor.wsgi"
     networks:
       - default
