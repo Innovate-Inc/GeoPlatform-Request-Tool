@@ -31,6 +31,7 @@ x-common-variables: &common-variables
 
 services:
   api:
+    image: docker.itgis.innovateteam.com/request_api
     build:
       context: .
       dockerfile: Dockerfile.api
