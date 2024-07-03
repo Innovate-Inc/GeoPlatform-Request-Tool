@@ -9,12 +9,8 @@ services:
       - "com.centurylinklabs.watchtower.scope=innovate"
     restart: unless-stopped
     environment:
-      VIRTUAL_HOST: ${VIRTUAL_HOST}
-  db:
-    volumes:
-      - ./mysql_data:/var/lib/mysql
-    networks:
-      - default
+      VIRTUAL_HOST: ${VIRTUiAL_HOST}
+
   web:
     build:
       context: .

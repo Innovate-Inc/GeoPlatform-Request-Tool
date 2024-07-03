@@ -31,10 +31,6 @@ x-common-variables: &common-variables
   SOCIAL_AUTH_REDIRECT_IS_HTTPS: ${SOCIAL_AUTH_REDIRECT_IS_HTTPS}
 
 services:
-  db:
-    image: postgres:14
-    environment:
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
   api:
     build:
       context: .
